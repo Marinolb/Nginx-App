@@ -27,7 +27,7 @@ jobs:
         run: |
           TAG=${GITHUB_REF##*/}
           echo "Construyendo imagen Nginx con tag: $TAG"
-          docker build -t marinolb/nginx-app:$TAG ./docker-1/custom_nginx  # Verifica la ruta aquí
+          docker build -t marinolb/nginx-app:$TAG ./custom_nginx  # Verifica la ruta aquí
 
       # Paso 4: Publicar la imagen Docker para Nginx
       - name: Push Docker image for Nginx
