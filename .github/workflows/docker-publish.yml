@@ -1,0 +1,38 @@
+name: Docker CI
+
+on:
+  push:
+    tags:
+      - 'vNginx*'  # Disparar el flujo de trabajo cuando se crea un tag que comience con 'vNginx'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Clonar el repositorio
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Paso 2: Login a Docker Hub
+      - name: Login to Docker Hub
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      # Paso 3: Construir la imagen Docker para Nginx
+      - name: Build Docker image for Nginx
+        if: startsWith(github.ref, 'refs/tags/vNginx.')
+        run: |
+          TAG=${GITHUB_REF##*/}
+          echo "Construyendo imagen Nginx con tag: $TAG"
+          docker build -t marinolb/nginx-app:$TAG ./docker-1/custom_nginx  # Verifica la ruta aquí
+
+      # Paso 4: Publicar la imagen Docker para Nginx
+      - name: Push Docker image for Nginx
+        if: startsWith(github.ref, 'refs/tags/vNginx.')
+        run: |
+          TAG=${GITHUB_REF##*/}
+          echo "Publicando imagen Nginx con tag: $TAG"
+          docker push marinolb/nginx-app:$TAG
